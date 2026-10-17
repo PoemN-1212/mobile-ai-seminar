@@ -1,0 +1,4 @@
+﻿split,n_images,n_boxes,boxes_person,boxes_laptop,boxes_cell phone,boxes_backpack,images_person,images_laptop,images_cell phone,images_backpack
+train,6558,32232,23830,2615,2672,3115,5295,1837,2039,1980
+val,1873,9299,6899,738,797,865,1502,526,583,564
+test,937,4126,2985,386,376,379,755,279,285,270

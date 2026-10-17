@@ -1,0 +1,4 @@
+﻿Model,Weights Path,Size (MB),Params (M),mAP@50 (%),mAP@50-95 (%),Precision (%),Recall (%),F1-Score (%),Inference (ms),Total Latency (ms),FPS
+YOLOv8n,runs/detect/train_yolov8n/weights/best.pt,6.16,3.14,47.19,30.88,58.86,44.64,50.77,2.34,3.91,256.1
+YOLO11n,runs/detect/train_yolo11n/weights/best.pt,5.21,2.61,46.01,29.61,57.04,43.94,49.64,1.6,2.89,346.0
+SSDLite320-MobileNetV3,runs_mobilenet/best_mobilenet.pth,14.66,3.76,30.31,14.52,12.44,27.16,17.06,6.13,6.13,163.1
