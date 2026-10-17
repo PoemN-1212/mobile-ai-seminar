@@ -13,10 +13,10 @@ Thư mục đã được làm sạch, giữ lại chính xác các tệp tin và
 ```text
 Mobile_Present_PJ/
 │
-├── dataset_coco_custom/         # Tập dữ liệu chuẩn hóa 4 classes theo tỷ lệ 70/20/10
+├── dataset.yaml                 # File cấu hình YOLO Dataset (đường dẫn & 4 classes)
+├── dataset_coco_custom/         # Tập dữ liệu 4 classes (1.45GB - tải tự động qua script hoặc Drive)
 │   ├── images/ (train, val, test)
-│   ├── labels/ (train, val, test)
-│   └── data.yaml               # File cấu hình YOLO Dataset
+│   └── labels/ (train, val, test)
 │
 ├── dataset_report/              # Thống kê trực quan hóa dữ liệu & Augmentation
 │   ├── class_distribution.png  # Biểu đồ phân bố số lượng bounding box 4 lớp
@@ -125,3 +125,26 @@ Theo phân công trong `ThuyetMinhAIMobileSeminar.docx`:
    - Dung lượng: SSDLite320 ($14.66\text{ MB}$), YOLOv8n ($6.16\text{ MB}$), YOLO11n ($5.21\text{ MB}$).
    - **Vấn đề chuyển giao cho Thành viên 2:** Thiết bị di động không có GPU rời, RAM hạn chế và dễ bị quá nhiệt (Thermal Throttling). Mô hình Float32 cần được chuyển đổi sang định dạng **TensorFlow Lite (.tflite)** kết hợp **Lượng tử hóa (Quantization INT8/FP16)** để tối ưu hóa bộ nhớ và tăng tốc độ xử lý phần cứng NPU/DSP di động.
 2. **Tài liệu bàn giao chi tiết:** Đã lập đầy đủ bảng biểu và đồ thị phân tích tại `benchmark_results/BENCHMARK_REPORT.md`.
+
+---
+
+## 📦 QUY TRÌNH BÀN GIAO TẬP DỮ LIỆU (DATASET HANDOVER)
+
+Theo đúng đề cương phân công kỹ thuật của **Bạn 1 (Dữ liệu & Tiền xử lý)** bàn giao cho **Bạn 2 (Thuật toán & Training)**:
+
+> **Lý do kỹ thuật chuẩn ngành:** Thư mục ảnh `dataset_coco_custom/` có dung lượng hơn **1.45 GB (18,740 tệp tin)**. Theo tiêu chuẩn quản trị mã nguồn (Git Best Practices), Git chỉ dùng để quản lý mã nguồn, cấu hình và báo cáo; không commit trực tiếp gigabytes dữ liệu ảnh thô vào Git repository vì sẽ làm nghẽn băng thông, phình to dung lượng repo và vi phạm giới hạn kích thước của GitHub.
+
+### 2 Phương thức bàn giao Dataset cho Thành viên 2 và Thầy cô:
+
+#### 🔹 Cách 1: Tự động tải & tái tạo cục bộ bằng 1 dòng lệnh (Khuyên dùng)
+Toàn bộ quy trình thu thập dữ liệu từ COCO API, lọc 4 classes cân bằng và chia tỷ lệ 70/20/10 đã được đóng gói tự động hóa 100%:
+```bash
+python download_coco_balanced.py
+```
+*Lệnh này sẽ tự động tạo thư mục `dataset_coco_custom/` với đầy đủ `images/` và `labels/` chuẩn xác 100% khớp với dữ liệu đã huấn luyện.*
+
+#### 🔹 Cách 2: Bàn giao trực tiếp file nén qua Cloud Storage (Google Drive / OneDrive)
+1. Thư mục dữ liệu đã xử lý sẵn trên máy: `Mobile_Present_PJ/dataset_coco_custom/`
+2. Bạn 1 nén toàn bộ thư mục thành file `dataset_coco_custom.zip` và upload lên thư mục dùng chung của nhóm trên **Google Drive**.
+3. Thành viên 2 chỉ cần tải file zip về, giải nén vào thư mục `model_training/` là có thể chạy ngay lệnh huấn luyện hoặc lượng tử hóa TFLite.
+
