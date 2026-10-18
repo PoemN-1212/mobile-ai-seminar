@@ -1,0 +1,9 @@
+names:
+  0: person
+  1: laptop
+  2: cell phone
+  3: backpack
+path: C:\Study\Mobile_Present_PJ\dataset_coco_custom
+test: .\images\test\
+train: .\images\train\
+val: .\images\val\

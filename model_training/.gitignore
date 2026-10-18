@@ -1,0 +1,21 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Dataset (>1.4GB, tái tạo bằng download_coco_balanced.py)
+dataset_coco_custom/
+
+# Base Pretrained Weights (tự động tải lại khi chạy train.py)
+yolo11n.pt
+yolov8n.pt
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
