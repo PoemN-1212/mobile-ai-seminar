@@ -3,17 +3,12 @@ plugins {
 }
 
 android {
-
     androidResources {
-        noCompress("tflite")
+        noCompress += "tflite"
     }
 
     namespace = "com.example.mobileaiseminar"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.mobileaiseminar"
@@ -27,9 +22,7 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -55,8 +48,7 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("androidx.camera:camera-view:$cameraxVersion")
 
-    // 2. TensorFlow Lite Runtime & Task Vision
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    // 2. TensorFlow Lite Runtime & Support
+    implementation("org.tensorflow:tensorflow-lite:2.16.1")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
-    implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.4")
 }
