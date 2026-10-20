@@ -15,18 +15,18 @@ class YoloDetector(
     private val context: Context,
     private val modelPath: String = "detect.tflite",
     private val labelPath: String = "labels.txt"
-) {
+) : Detector {
+
     private var interpreter: Interpreter? = null
-    private var labels = mutableListOf<String>()
+    private val labels = mutableListOf<String>()
 
-    private val inputSize = 320 // Kích thước chuẩn mô hình đã train (320x320)
+    private val inputSize = 320
     private val numChannels = 3
-    private val numElements = 2100 // Tổng số anchor boxes của YOLOv8 (320x320)
-    private val numChannelsOutput = 8 // 4 tọa độ (cx, cy, w, h) + 4 lớp xác suất
+    private val numElements = 2100
+    private val numChannelsOutput = 8
 
-    // Ngưỡng lọc
-    private val confidenceThreshold = 0.35f // Bỏ các dự đoán dưới 35%
-    private val iouThreshold = 0.45f        // Ngưỡng NMS loại bỏ khung trùng lặp
+    private val confidenceThreshold = 0.35f
+    private val iouThreshold = 0.45f
 
     init {
         loadModel()
@@ -35,7 +35,7 @@ class YoloDetector(
 
     private fun loadModel() {
         val options = Interpreter.Options().apply {
-            setNumThreads(4) // Tối ưu CPU 4 luồng chạy mượt mà
+            setNumThreads(4)
         }
         val modelBuffer = FileUtil.loadMappedFile(context, modelPath)
         interpreter = Interpreter(modelBuffer, options)
@@ -52,13 +52,9 @@ class YoloDetector(
         }
     }
 
-    /**
-     * Hàm chính nhận Bitmap từ CameraX và trả về danh sách BoundingBox
-     */
-    fun detect(bitmap: Bitmap): List<BoundingBox> {
+    override fun detect(bitmap: Bitmap): List<BoundingBox> {
         val tflite = interpreter ?: return emptyList()
 
-        // 1. Tiền xử lý: Resize về 320x320 và đưa vào ByteBuffer chuẩn hóa [0.0, 1.0]
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, false)
         val inputBuffer = ByteBuffer.allocateDirect(1 * inputSize * inputSize * numChannels * 4).apply {
             order(ByteOrder.nativeOrder())
@@ -69,31 +65,24 @@ class YoloDetector(
         resizedBitmap.getPixels(intValues, 0, inputSize, 0, 0, inputSize, inputSize)
 
         for (pixelValue in intValues) {
-            // Chuẩn hóa RGB chia 255.0f
             inputBuffer.putFloat(((pixelValue shr 16) and 0xFF) / 255.0f)
             inputBuffer.putFloat(((pixelValue shr 8) and 0xFF) / 255.0f)
             inputBuffer.putFloat((pixelValue and 0xFF) / 255.0f)
         }
 
-        // 2. Chuẩn bị mảng đầu ra: Ma trận [1, 8, 2100]
         val outputArray = Array(1) { Array(numChannelsOutput) { FloatArray(numElements) } }
-
-        // 3. Chạy suy luận (Inference)
         tflite.run(inputBuffer, outputArray)
 
-        // 4. Giải mã ma trận đầu ra và chạy thuật toán NMS
         return postprocess(outputArray[0])
     }
 
     private fun postprocess(output: Array<FloatArray>): List<BoundingBox> {
         val boundingBoxes = mutableListOf<BoundingBox>()
 
-        // Quét qua toàn bộ 2100 khung neo dự đoán
         for (i in 0 until numElements) {
             var maxConfidence = -1.0f
             var classIndex = -1
 
-            // 4 dòng đầu là tọa độ, dòng 4 đến 7 là xác suất 4 nhãn
             for (c in 0 until labels.size) {
                 val score = output[c + 4][i]
                 if (score > maxConfidence) {
@@ -102,14 +91,12 @@ class YoloDetector(
                 }
             }
 
-            // Lọc theo ngưỡng tin cậy
             if (maxConfidence > confidenceThreshold && classIndex != -1) {
                 val cx = output[0][i]
                 val cy = output[1][i]
                 val w = output[2][i]
                 val h = output[3][i]
 
-                // Chuyển đổi tọa độ tâm về góc (x1, y1, x2, y2) và chuẩn hóa về dải [0.0 -> 1.0]
                 val x1 = max(0f, (cx - w / 2f) / inputSize)
                 val y1 = max(0f, (cy - h / 2f) / inputSize)
                 val x2 = min(1f, (cx + w / 2f) / inputSize)
@@ -132,8 +119,6 @@ class YoloDetector(
                 )
             }
         }
-
-        // 5. Áp dụng Non-Maximum Suppression (NMS) để loại bỏ các khung trùng lặp
         return applyNMS(boundingBoxes)
     }
 
@@ -148,7 +133,6 @@ class YoloDetector(
             val iterator = sortedBoxes.iterator()
             while (iterator.hasNext()) {
                 val nextBox = iterator.next()
-                // Nếu 2 box cùng loại đối tượng và độ đè lấn IoU > ngưỡng -> loại bỏ
                 if (first.cls == nextBox.cls && calculateIoU(first, nextBox) > iouThreshold) {
                     iterator.remove()
                 }
@@ -171,7 +155,7 @@ class YoloDetector(
         return if (unionArea <= 0f) 0f else intersectionArea / unionArea
     }
 
-    fun close() {
+    override fun close() {
         interpreter?.close()
         interpreter = null
     }
