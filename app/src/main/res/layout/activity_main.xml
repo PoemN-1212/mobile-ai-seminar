@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
-    tools:context=".MainActivity">
+    android:background="@android:color/black">
 
-    <!-- 1. CameraX PreviewView: Hiển thị luồng hình ảnh trực tiếp từ camera -->
+    <!-- 1. Luồng Camera thô (Preview) -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="0dp"
@@ -16,48 +14,46 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:scaleType="fillCenter" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 2. Overlay thông số kỹ thuật phục vụ thuyết trình Live Demo (Phần 3, 4, 5) -->
+    <!-- 2. Lớp Canvas vẽ Bounding Box đè lên Camera -->
+    <com.example.mobileaiseminar.OverlayView
+        android:id="@+id/overlayView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 3. Bảng thông số đo thời gian thực (Inference Latency & FPS) -->
     <LinearLayout
-        android:id="@+id/topBar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:background="#80000000"
+        android:background="#AA000000"
         android:orientation="vertical"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/tvModelInfo"
+            android:id="@+id/tvInferenceTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mô hình: YOLOv8n INT8 Quantized (320x320)"
+            android:text="Inference: 0 ms"
             android:textColor="#00FF66"
             android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvCameraStatus"
+            android:id="@+id/tvFps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="CameraX: Preview + ImageAnalysis (STRATEGY_KEEP_ONLY_LATEST)"
+            android:text="FPS: 0"
             android:textColor="#FFFFFF"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tvPerformance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Pipeline: Đang nhận frame..."
-            android:textColor="#FFDD00"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
